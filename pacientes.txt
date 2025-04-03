@@ -1,0 +1,30 @@
+Juan Perez, fractura de pierna, C
+Maria Ramirez, apendicitis, A
+Lorenzo Toledo, chikunguya, E
+Carmen Sarmientos, dolores de parto, B
+Roberto Gonzalez, dolor de pecho, A
+Sofia Martinez, fiebre alta, C
+Miguel Hernandez, corte profundo en brazo, B
+Ana Rodriguez, dolor abdominal severo, B
+Carlos Mendoza, quemadura de segundo grado, B
+Lucia Fernandez, dificultad para respirar, A
+Pedro Sanchez, reacción alérgica, B
+Julia Morales, mareos y vómitos, C
+Fernando Torres, esguince de tobillo, D
+Diana Lopez, migraña severa, C
+Gabriel Vasquez, intoxicación alimentaria, C
+Patricia Flores, crisis de ansiedad, D
+Alejandro Rojas, fractura de muñeca, C
+Elena Campos, desmayo, B
+Ricardo Vargas, infección urinaria, D
+Valeria Castro, dolor de garganta, E
+Oscar Jimenez, convulsiones, A
+Natalia Gutierrez, traumatismo craneal leve, B
+Daniel Ortiz, dolor de oídos, D
+Beatriz Navarro, alergia cutánea, D
+Monica Delgado, embarazo ectópico, A
+Eduardo Rivas, cólico renal, B
+Isabel Molina, corte en la frente, C
+Victor Aguilar, dolor de espalda agudo, C
+Regina Soto, presión arterial alta, B
+Hugo Reyes, ataque de asma, A
