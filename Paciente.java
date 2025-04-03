@@ -1,5 +1,5 @@
 
-public class Paciente {
+public class Paciente implements Comparable<Paciente> {
 
     // Atributos
     String nombre;
@@ -38,4 +38,8 @@ public class Paciente {
         this.codigo = codigo;
     }
     
+    @Override 
+    public int commpareTo(Paciente otro) {
+        return Character.compare(this.codigo, otro.codigo); // A tiene mayor prioridad que E
+    }
 }
