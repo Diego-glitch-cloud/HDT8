@@ -18,7 +18,7 @@ public class Reader {
                     // Elimina los espacios al inicio y al final del string
                     String nombre = datos[0].trim();
                     String sintoma = datos[1].trim();
-                    String prioridad = datos[2].trim();
+                    char prioridad = datos[2].trim().charAt(0);
                     
                     // Crear nuevo paciente y agregarlo a la lista
                     Paciente paciente = new Paciente(nombre, sintoma, prioridad);
