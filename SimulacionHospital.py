@@ -1,68 +1,67 @@
+# ------------------------------------------------
+# Pedro Caso y Diego Calderón
+# Algoritmos y Estructuras de datos
+# HDT8
+# ------------------------------------------------ 
 import simpy
 import random
 import csv
 import os
 
+random.seed(10)
 # Parámetros del hospital
 LlegadaDePacientes = 5
-TiempoDeTriage = 10
-TiempoDeConsulta = 15
-TiempoDeLab = 20
-Enfermeras = 2
+TiempoDeTriage = 35
+TiempoDeConsulta = 60
+TiempoDeLab = 45
+Enfermeras = 6
 Doctores = 3
 LaboratoriosDisponibles = 1
-TiempoDeSimulacion = 200  
+TiempoDeSimulacion = 720
 
-# Función para registrar datos en CSV
-def registrar_datos(datos):
-    archivo_nuevo = not os.path.exists("resultados.csv")
-    with open("resultados.csv", mode="a", newline="") as file:
-        writer = csv.writer(file)
-        if archivo_nuevo:
-            writer.writerow(["ID", "Severidad", "T_Llegada", "T_Triage", "T_Consulta", "T_Laboratorio", "T_Salida"])
-        writer.writerows(datos)
+# Función para registrar los datos de la simulacion en el csv
+def RegistroDatos(datos):
+    with open("ResultadosHospital.csv", mode="w", newline="") as file:
+        modificadorCSV = csv.writer(file)
+        modificadorCSV.writerow(["IDPaciente", "TiempoTotal"])
+        modificadorCSV.writerows(datos)
 
-# Función para generar pacientes
-def generar_pacientes(env, hospital, datos):
-    paciente_id = 0
-    while True:
-        severidad = random.randint(1, 5)  # 1 es el más grave, 5 el menos grave
-        env.process(proceso_paciente(env, hospital, paciente_id, severidad, datos))
-        paciente_id += 1
-        yield env.timeout(random.expovariate(1.0 / LlegadaDePacientes))
+# funcion para simular los pacientes 
+def pacientes(env, hospital, datos):
+    IDPaciente = 0
+    continuar = True
+    while continuar:
+        gravedad = random.randint(1, 5)  # genera un numero aleatorio del 1 al 5 para ver la gravedad
+        env.process(solicitudPaciente(env, hospital, IDPaciente, gravedad, datos)) # envia la solicitud con la gravedad asignada
+        IDPaciente += 1 # por cada paciente se va sumando el ID para evitar repetidos
+        yield env.timeout(random.expovariate(1.0 / LlegadaDePacientes)) # genera un tiempo aleatorio entre llegadas basado en la tasa promedio de llegada de pacientes
 
 # Función del flujo del paciente
-def proceso_paciente(env, hospital, paciente_id, severidad, datos):
-    llegada = env.now
+def solicitudPaciente(env, hospital, IDPaciente, gravedad, datos):
+    llegada = env.now # se registra el tiempo de llegada del paciente
 
-    # Etapa 1: Triage
-    with hospital["enfermeras"].priority_request(priority=severidad) as req:
-        yield req
-        inicio_triage = env.now
-        yield env.timeout(random.normalvariate(TiempoDeTriage, 2))  # Variabilidad en el tiempo de triage
-        fin_triage = env.now
+    # triage o evaluacion 
+    with hospital["enfermeras"].request(priority=gravedad) as solicitud: # se identifica la gravedad para identficar la prioridad
+        yield solicitud # la solicitud espera hasta encontrar una enfermera disponible
+        yield env.timeout(random.normalvariate(TiempoDeTriage, 10))  # se simula el tiempo de evaluacion 
 
-    # Etapa 2: Consulta con doctor
-    with hospital["doctores"].priority_request(priority=severidad) as req:
-        yield req
-        inicio_consulta = env.now
-        yield env.timeout(random.normalvariate(TiempoDeConsulta, 3))  # Variabilidad en consulta
-        fin_consulta = env.now
+    # consulta con el doctor
+    with hospital["doctores"].request(priority=gravedad) as solicitud: # se identifica la gravedad para identficar la prioridad 
+        yield solicitud # la solicitud espera hasta encontrar un doctor disponible
+        yield env.timeout(random.normalvariate(TiempoDeConsulta, 10))  # se simula el tiempo que pasa el paciente en consulta
 
-    # Etapa 3: Laboratorio (si aplica)
-    inicio_lab = fin_lab = -1
-    if random.random() < 0.5:  
-        with hospital["laboratorios"].priority_request(priority=severidad) as req:
-            yield req
-            inicio_lab = env.now
-            yield env.timeout(random.normalvariate(TiempoDeLab, 5))  # Variabilidad en laboratorio
-            fin_lab = env.now
+    # analisis de laboratorio
+    if random.random() < {1: 0.8, 2: 0.6, 3: 0.4, 4: 0.2, 5: 0.1}.get(gravedad, 0.1):  # Probabilidad de laboratorio depende de la gravedad
+        with hospital["laboratorios"].request(priority=gravedad) as solicitud:
+            yield solicitud  # La solicitud espera hasta encontrar un espacio en el laboratorio
+            yield env.timeout(random.normalvariate(TiempoDeLab, 5))  # Se simula el tiempo que pasa en el laboratorio
 
-    # Registrar datos del paciente
+    # Se registra el tiempo total en el hospital
     salida = env.now
-    datos.append([paciente_id, severidad, llegada, fin_triage, fin_consulta, fin_lab, salida])
+    TiempoTotal = salida - llegada
+    datos.append([IDPaciente, TiempoTotal])
 
-# Configuración del hospital
+# Se configuta el hospital
 def inicializar_hospital(env):
     return {
         "enfermeras": simpy.PriorityResource(env, capacity=Enfermeras),
@@ -72,26 +71,19 @@ def inicializar_hospital(env):
 
 # Función para calcular estadísticas
 def calcular_estadisticas(datos):
-    tiempos_triage = [(fila[3] - fila[2]) for fila in datos if fila[3] is not None]  # Triage - Llegada
-    tiempos_consulta = [(fila[4] - fila[3]) for fila in datos if fila[4] is not None]  # Consulta - Triage
-    tiempos_lab = [(fila[5] - fila[4]) for fila in datos if fila[5] > 0]  # Laboratorio - Consulta
+    tiemposTotales = [fila[1] for fila in datos]
+    if tiemposTotales:
+        print(f"Tiempo promedio del hospital atendiendo: {sum(tiemposTotales)/len(tiemposTotales):.2f} mins")
 
-    if tiempos_triage:
-        print(f"Tiempo promedio de espera en triage: {sum(tiempos_triage)/len(tiempos_triage):.2f} min")
-    if tiempos_consulta:
-        print(f"Tiempo promedio de espera en consulta: {sum(tiempos_consulta)/len(tiempos_consulta):.2f} min")
-    if tiempos_lab:
-        print(f"Tiempo promedio en laboratorio: {sum(tiempos_lab)/len(tiempos_lab):.2f} min")
-
-# Función principal
+# Función principal manejando el hospital y mostrar datos
 def main():
     env = simpy.Environment()
     hospital = inicializar_hospital(env)
     datos = []
-    env.process(generar_pacientes(env, hospital, datos))
+    env.process(pacientes(env, hospital, datos))
     env.run(until=TiempoDeSimulacion)
-    registrar_datos(datos)
-    calcular_estadisticas(datos)  # Llamamos la función para mostrar los tiempos promedio
+    RegistroDatos(datos)
+    calcular_estadisticas(datos) 
 
-if __name__ == "__main__":
-    main()
+main()
+
