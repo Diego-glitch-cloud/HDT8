@@ -22,10 +22,10 @@ TiempoDeSimulacion = 200
 # Función para registrar los datos de la simulacion en el csv
 def RegistroDatos(datos):
     NuevoCSV = not os.path.exists("ResultadosHospital.csv") # verifica si el csv ya existe anteriormente para evitar errores
-    with open("ResultadosHospital.csv", mode="w", newline="") as file: # abre el archivo y lo ejecuta en modo "append" y evita lineas en blanco
+    with open("ResultadosHospital.csv", mode="w", newline="") as file: # abre el archivo y lo ejecuta en modo "writte" y evita lineas en blanco
         modificadorCSV = csv.writer(file) # crea un objeto para escribir en el csv
         if NuevoCSV: # si es nuevo agrega los encabezados y la creacion del csv
-            modificadorCSV.writerow(["ID_Paciente", "Tiempo_Total"])
+            modificadorCSV.writerow(["IDPaciente", "TiempoTotal"])
         modificadorCSV.writerows(datos)
 
 # funcion para simular los pacientes 
@@ -60,8 +60,8 @@ def solicitudPaciente(env, hospital, IDPaciente, gravedad, datos):
 
     # Se registra el tiempo total en el hospital
     salida = env.now
-    tiempo_total = salida - llegada
-    datos.append([IDPaciente, tiempo_total])
+    TiempoTotal = salida - llegada
+    datos.append([IDPaciente, TiempoTotal])
 
 # Se configuta el hospital
 def inicializar_hospital(env):
@@ -75,9 +75,9 @@ def inicializar_hospital(env):
 def calcular_estadisticas(datos):
     tiemposTotales = [fila[1] for fila in datos]
     if tiemposTotales:
-        print(f"Tiempo promedio total en hospital: {sum(tiemposTotales)/len(tiemposTotales):.2f} min")
+        print(f"Tiempo promedio del hospital atendiendo: {sum(tiemposTotales)/len(tiemposTotales):.2f} mins")
 
-# Función principal manejando el hospital
+# Función principal manejando el hospital y mostrar datos
 def main():
     env = simpy.Environment()
     hospital = inicializar_hospital(env)
@@ -85,8 +85,7 @@ def main():
     env.process(pacientes(env, hospital, datos))
     env.run(until=TiempoDeSimulacion)
     RegistroDatos(datos)
-    calcular_estadisticas(datos)  # Llamamos la función para mostrar los tiempos promedio
+    calcular_estadisticas(datos) 
 
-if __name__ == "__main__":
-    main()
+main()
 
