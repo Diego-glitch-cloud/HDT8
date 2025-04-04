@@ -9,3 +9,4 @@ PDF:
 [Informe del hospital - HDT8.pdf](https://github.com/user-attachments/files/19598835/Informe.del.hospital.-.HDT8.pdf)
 
 Link del repo:
+https://github.com/Diego-glitch-cloud/HDT8
