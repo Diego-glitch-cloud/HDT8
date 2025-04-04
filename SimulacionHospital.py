@@ -11,21 +11,19 @@ import os
 random.seed(10)
 # Parámetros del hospital
 LlegadaDePacientes = 5
-TiempoDeTriage = 10
-TiempoDeConsulta = 15
-TiempoDeLab = 20
-Enfermeras = 2
+TiempoDeTriage = 35
+TiempoDeConsulta = 60
+TiempoDeLab = 45
+Enfermeras = 6
 Doctores = 3
 LaboratoriosDisponibles = 1
-TiempoDeSimulacion = 200  
+TiempoDeSimulacion = 720
 
 # Función para registrar los datos de la simulacion en el csv
 def RegistroDatos(datos):
-    NuevoCSV = not os.path.exists("ResultadosHospital.csv") # verifica si el csv ya existe anteriormente para evitar errores
-    with open("ResultadosHospital.csv", mode="w", newline="") as file: # abre el archivo y lo ejecuta en modo "writte" y evita lineas en blanco
-        modificadorCSV = csv.writer(file) # crea un objeto para escribir en el csv
-        if NuevoCSV: # si es nuevo agrega los encabezados y la creacion del csv
-            modificadorCSV.writerow(["IDPaciente", "TiempoTotal"])
+    with open("ResultadosHospital.csv", mode="w", newline="") as file:
+        modificadorCSV = csv.writer(file)
+        modificadorCSV.writerow(["IDPaciente", "TiempoTotal"])
         modificadorCSV.writerows(datos)
 
 # funcion para simular los pacientes 
@@ -45,12 +43,12 @@ def solicitudPaciente(env, hospital, IDPaciente, gravedad, datos):
     # triage o evaluacion 
     with hospital["enfermeras"].request(priority=gravedad) as solicitud: # se identifica la gravedad para identficar la prioridad
         yield solicitud # la solicitud espera hasta encontrar una enfermera disponible
-        yield env.timeout(random.normalvariate(TiempoDeTriage, 2))  # se simula el tiempo de evaluacion 
+        yield env.timeout(random.normalvariate(TiempoDeTriage, 10))  # se simula el tiempo de evaluacion 
 
     # consulta con el doctor
     with hospital["doctores"].request(priority=gravedad) as solicitud: # se identifica la gravedad para identficar la prioridad 
         yield solicitud # la solicitud espera hasta encontrar un doctor disponible
-        yield env.timeout(random.normalvariate(TiempoDeConsulta, 3))  # se simula el tiempo que pasa el paciente en consulta
+        yield env.timeout(random.normalvariate(TiempoDeConsulta, 10))  # se simula el tiempo que pasa el paciente en consulta
 
     # analisis de laboratorio
     if random.random() < {1: 0.8, 2: 0.6, 3: 0.4, 4: 0.2, 5: 0.1}.get(gravedad, 0.1):  # Probabilidad de laboratorio depende de la gravedad
