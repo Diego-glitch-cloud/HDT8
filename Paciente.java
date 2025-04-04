@@ -1,5 +1,4 @@
-
-public class Paciente implements Comparable<Paciente> {
+public class Paciente implements Comparable<Paciente> { // Especifica el tipo genérico
 
     // Atributos
     String nombre;
@@ -7,13 +6,13 @@ public class Paciente implements Comparable<Paciente> {
     char codigo;
 
     // Constructor
-    Paciente(String nombre, String sintoma, char codigo) {
+    public Paciente(String nombre, String sintoma, char codigo) {
         this.nombre = nombre;
         this.sintoma = sintoma;
         this.codigo = codigo;
     }
 
-    // getters y setters 
+    // Getters y setters
     public String getNombre() {
         return nombre;
     }
@@ -29,7 +28,7 @@ public class Paciente implements Comparable<Paciente> {
     public void setSintoma(String sintoma) {
         this.sintoma = sintoma;
     }
-    
+
     public char getCodigo() {
         return codigo;
     }
@@ -37,9 +36,19 @@ public class Paciente implements Comparable<Paciente> {
     public void setCodigo(char codigo) {
         this.codigo = codigo;
     }
-    
-    @Override 
-    public int commpareTo(Paciente otro) {
-        return Character.compare(this.codigo, otro.codigo); // A tiene mayor prioridad que E
+
+    @Override
+    public int compareTo(Paciente otro) {
+        // Compara por código de prioridad
+        return Character.compare(this.codigo, otro.codigo);
+    }
+
+    @Override
+    public String toString() {
+        return "Paciente{" +
+            "nombre='" + nombre + '\'' +
+            ", sintoma='" + sintoma + '\'' +
+            ", codigo=" + codigo +
+            '}';
     }
 }

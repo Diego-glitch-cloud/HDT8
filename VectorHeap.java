@@ -4,14 +4,18 @@ public class VectorHeap<E extends Comparable<E>> implements PriorityQueue<E> {
     private Vector<E> data = new Vector<>();
 
     // Métodos auxiliares para obtener los índices de la estructura de heap
+
+    // Indice de un nodo padre dado el índice del nodo hijo
     private int padre(int pos) {
         return (pos - 1) / 2;
     }
 
+    // Dado el index del nodo padre, se da el index del nodo hijo izquierdo
     private int hijoIzquierdo(int pos) {
         return 2 * pos + 1;
     }
 
+    // Dado el index del nodo padre, se da el index del nodo hijo derecho
     private int hijoDerecho(int pos) {
         return 2 * pos + 2;
     }
